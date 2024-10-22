@@ -1,0 +1,13 @@
+{
+    "idf.adapterTargetName": "esp32",
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "*.inc": "c",
+        "esp_http_client.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "request.h": "c",
+        "sht21.h": "c"
+    },
+}
