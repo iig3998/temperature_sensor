@@ -6,4 +6,6 @@ idf_component_register(SRCS "main.c"
 					   INCLUDE_DIRS "components/request/include"
 					   INCLUDE_DIRS "components/wifi/include"
 					   INCLUDE_DIRS "components/chip_info/include"
+					   INCLUDE_DIRS "components/sensor/include"
+					   INCLUDE_DIRS "components/enp/include"
 		      )
