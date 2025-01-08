@@ -258,21 +258,21 @@ esp_err_t wifi_init_sta() {
 
     err = esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config);
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_WIFI, "Error, wifi not configured");
+        ESP_LOGE(TAG_WIFI, "Error, WiFi not configured");
         return err;
     } 
 
     /* Start wifi */
     err = esp_wifi_start();
     if (err != ESP_OK) {
-        ESP_LOGE(TAG_WIFI, "Error, wifi not started");
+        ESP_LOGE(TAG_WIFI, "Error, WiFi not started");
         return err;
     } 
 
     return err;
 }
 
-/**/
+/* Stop WiFi station */
 esp_err_t wifi_stop_sta() {
 
     esp_err_t err = ESP_FAIL;
