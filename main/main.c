@@ -8,7 +8,6 @@
 #include "esp_event_loop.h"
 #include "esp_system.h"
 #include "esp_sleep.h"
-#include "esp_now.h"
 
 #include "driver/adc.h"
 #include "driver/i2c.h"
@@ -20,11 +19,11 @@
 #include "wifi.h"
 
 #include "bmp280.h"
-#include "sht21.h"
 #include "aht10.h"
 #include "aht20.h"
+#include "sht21.h"
 
-/**/
+/* Define macro */
 #define KEY_CLOUD                   "key_cloud"
 #define URL                         "url"
 #define PATH                        "/api/v2/domotichouse/feeds/"
@@ -88,7 +87,7 @@ void aht10_task(void *param) {
         if (err != ESP_OK) {
             ESP_LOGE(TAG_MAIN, "Error, measure not available");
         } else {
-            ESP_LOGI(TAG_MAIN, "Status: 0x%2x", status);
+            ESP_LOGI(TAG_MAIN, "Status: 0x%2X", status);
 
             /* Read battery value */
             err = adc_read(&dbv);
@@ -99,14 +98,6 @@ void aht10_task(void *param) {
 
             ESP_LOGI(TAG_MAIN, "Temperature: %f", get_temperature_aht10(data));
             ESP_LOGI(TAG_MAIN, "Humidity: %f", get_humidity_aht10(data));
-
-            memset(payload, '\0', sizeof(payload));
-            memset(output, '\0', sizeof(output));
-            snprintf(payload, sizeof(payload), "{\"temperature\": %.1f, \"humidity\": %.1f, \"battery\": %.1f}", get_temperature_aht10(data), get_humidity_aht10(data), (float)((float)(dbv / 1023) * 3.3));
-
-            ESP_LOGI(TAG_MAIN, "Payload: %s", payload);
-
-            //http_client_post_request(URL, (const char*)"/api/v1/temperature_sensor/0/data", NULL, payload, output, sizeof(output));
         }
 
         vTaskDelay(pdMS_TO_TICKS(10000));
@@ -119,10 +110,8 @@ void aht10_task(void *param) {
 void app_main() {
 
     esp_err_t err = ESP_FAIL;
-    esp_now_peer_info_t peer;
     esp_chip_info_t chip_info;
     adc_config_t adc_config;
-    static uint8_t example_broadcast_mac[ESP_NOW_ETH_ALEN] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
     /* Init flash */
     nvs_flash_init();
@@ -138,18 +127,6 @@ void app_main() {
     err = esp_now_init();
     if (err != ESP_OK) {
         ESP_LOGI(TAG_MAIN, "Error, ESP NOW not initializeted");
-        return;
-    }
-
-    /* Configure peer */
-    peer.channel = 0;
-    peer.ifidx = ESP_IF_WIFI_STA;
-    peer.encrypt = false;
-
-    memcpy(peer.peer_addr, example_broadcast_mac, ESP_NOW_ETH_ALEN);
-    err = esp_now_add_peer(&peer);
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG_MAIN, "Error, peer address not configurated");
         return;
     }
 
@@ -176,28 +153,14 @@ void app_main() {
         return;
     } 
 
-    //ESP_LOGI(TAG_MAIN, "Deep sleep mode for 5 seconds");
-
     /* Start task bmp280 */
     //xTaskCreate(&bmp280_task, "bmp280", 4096, NULL, 1, NULL);
 
     /* Start task sht21 */
     //xTaskCreate(&sht21_task, "sht21", 4096, NULL, 1, NULL);
 
-    /* Check wifi connection */
-    check_wifi_connection();
-
     /* Start task aht10 */
     xTaskCreate(&aht10_task, "aht10", 4096, NULL, 1, NULL);
 
-    /**/
-    //wifi_stop_sta();
-
-    //i2c_driver_delete();
-
-    //esp_deep_sleep_set_rf_option(2);
-
-    /* Enter in deep sleep mode for 5 seconds */
-    //esp_deep_sleep(5 * 1000000);
-
+    return;
 }
